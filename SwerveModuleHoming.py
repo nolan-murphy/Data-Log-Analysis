@@ -108,38 +108,30 @@ def PlotSwerveModuleHoming(df):
         filteredDfs[baseKey] = filteredDfs[baseKey].drop(['Is Homed'], axis=1)
 
     # Plot the data
-    fig1, axes1 = plt.subplots(nrows=2, ncols=2)
-    fig1.suptitle('Swerve Modules - Homing Signals', fontsize=18)
-    fig2, axes2 = plt.subplots(nrows=2, ncols=2)
-    fig2.suptitle('Swerve Modules - Position Error Histograms', fontsize=18)
-    fig3, axes3 = plt.subplots(nrows=2, ncols=2)
-    fig3.suptitle('Swerve Modules - Velocity Error Histograms', fontsize=18)
+    fig1, axes1 = plt.subplot_mosaic("AA;BC")
+    fig2, axes2 = plt.subplot_mosaic("AA;BC")
+    fig3, axes3 = plt.subplot_mosaic("AA;BC")
+    fig4, axes4 = plt.subplot_mosaic("AA;BC")
+    axes = [axes1, axes2, axes3, axes4]
+
+    fig1.suptitle('Front-Left Swerve Module', fontsize=18)
+    fig2.suptitle('Front-Right Swerve Module', fontsize=18)
+    fig3.suptitle('Rear-Left Swerve Module', fontsize=18)
+    fig4.suptitle('Rear-Right Swerve Module', fontsize=18)
     plt.rc('legend', fontsize=6)
-    PlotSignals(filteredDfs['FL'], axes1[0, 0], 'Front-Left')
-    PlotSignals(filteredDfs['FR'], axes1[0, 1], 'Front-Right')
-    PlotSignals(filteredDfs['RL'], axes1[1, 0], 'Rear-Left')
-    PlotSignals(filteredDfs['RR'], axes1[1, 1], 'Rear-Right')
-    PlotHistograms(
-        filteredDfs['FL']['Turn Position Error (rad)'], axes2[0, 0], 'Front-Left')
-    PlotHistograms(
-        filteredDfs['FR']['Turn Position Error (rad)'], axes2[0, 1], 'Front-Right')
-    PlotHistograms(
-        filteredDfs['RL']['Turn Position Error (rad)'], axes2[1, 0], 'Rear-Left')
-    PlotHistograms(
-        filteredDfs['RR']['Turn Position Error (rad)'], axes2[1, 1], 'Rear-Right')
-    PlotHistograms(
-        filteredDfs['FL']['Turn Velocity Error (rad/s)'], axes3[0, 0], 'Front-Left')
-    PlotHistograms(
-        filteredDfs['FR']['Turn Velocity Error (rad/s)'], axes3[0, 1], 'Front-Right')
-    PlotHistograms(
-        filteredDfs['RL']['Turn Velocity Error (rad/s)'], axes3[1, 0], 'Rear-Left')
-    PlotHistograms(
-        filteredDfs['RR']['Turn Velocity Error (rad/s)'], axes3[1, 1], 'Rear-Right')
+
+    for idx, baseKey in enumerate(baseKeys):
+        __PlotSignals(filteredDfs[baseKey], axes[idx]["A"], 'Homing Signals')
+        __PlotHistograms(filteredDfs[baseKey]['Turn Position Error (rad)'],
+                         axes[idx]["B"], 'Position Error Histograms')
+        __PlotHistograms(filteredDfs[baseKey]['Turn Velocity Error (rad/s)'],
+                         axes[idx]["C"], 'Velocity Error Histograms')
+
     plt.tight_layout()
     plt.show()
 
 
-def PlotSignals(module, axis, title):
+def __PlotSignals(module, axis, title):
     # module.plot(ax=axis, x='Timestamp', linestyle='--', secondary_y=[
     #             'Turn Velocity Setpoint (rad/s)', 'Turn Velocity Error (rad/s)',
     #             'Turn PID Output (V)', 'Turn Feed-forward Output (V)'], marker='o', title=title)
@@ -154,10 +146,10 @@ def PlotSignals(module, axis, title):
     axis.grid()
 
 
-def PlotHistograms(module, axis, title):
+def __PlotHistograms(module, axis, title):
     stat, p = shapiro(module.dropna())
     # print('Statistics=%.3f, p=%.3f' % (stat, p))
-    alpha = 0.05
+    alpha = 0.05  # 95% confidence
     if p > alpha:
         txt = 'Gaussian (fail to reject H0), p = %.3f' % (p)
         # print('Sample looks Gaussian (fail to reject H0)')
@@ -170,4 +162,12 @@ def PlotHistograms(module, axis, title):
 
 df = pd.read_csv(
     r"C:\Users\ejmcc\Documents\GIT Projects\Data-Log-Analysis\logs\FRC_20221116_013534.csv")
+# r"C:\Users\ejmcc\Documents\GIT Projects\Data-Log-Analysis\logs\FRC_20221116_013024.csv")
+# r"C:\Users\ejmcc\Documents\GIT Projects\Data-Log-Analysis\logs\FRC_20221116_012513.csv")
+# r"C:\Users\ejmcc\Documents\GIT Projects\Data-Log-Analysis\logs\FRC_20221116_012152.csv")
+# r"C:\Users\ejmcc\Documents\GIT Projects\Data-Log-Analysis\logs\FRC_20221116_011927.csv")
+# r"C:\Users\ejmcc\Documents\GIT Projects\Data-Log-Analysis\logs\FRC_20221116_011621.csv")
+# r"C:\Users\ejmcc\Documents\GIT Projects\Data-Log-Analysis\logs\FRC_20221116_011206.csv")
+
+
 PlotSwerveModuleHoming(df)
