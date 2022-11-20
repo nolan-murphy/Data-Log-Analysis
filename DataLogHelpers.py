@@ -1,9 +1,10 @@
 import pandas as pd
 
 
-def GetBooleanColumn(df, base, telemetry):
+def GetBooleanColumn(df, base, telemetry, scaling=1.0):
     col_df = df.loc[df['Name'] == base+' '+telemetry].copy()
-    col_df[telemetry] = col_df['Value'].replace({"true": 1, "false": 0})
+    col_df[telemetry] = col_df['Value'].replace(
+        {"true": 1.0*scaling, "false": 0.0})
     col_df = col_df.drop(["Name", "Value"], axis=1)
     return col_df
 
