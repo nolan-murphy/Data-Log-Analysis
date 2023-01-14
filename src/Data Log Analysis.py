@@ -9,6 +9,7 @@ ctk.set_default_color_theme("dark-blue")
 
 
 class App(ctk.CTk):
+    #tim is cool
 
     WIDTH = 780
     HEIGHT = 520
